@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AdOverlay from './tools/AdOverlay.vue';
+import AdOverlay from './components/AdOverlay.vue';
 import { useUrlSearchParams } from '@vueuse/core';
 import { computed } from 'vue';
 
