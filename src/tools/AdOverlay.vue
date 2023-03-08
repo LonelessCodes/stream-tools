@@ -1,0 +1,140 @@
+<template>
+  <div class="ad-overlay">
+    <div class="ad-overlay__container">
+      <Transition name="fade">
+        <div v-show="isActive" class="ad-overlay__state">
+          <div class="ad-overlay__progressbar">
+            <div class="ad-overlay__progressbar__inner" :style="{ width: (adProgress * 100) + '%' }"></div>
+          </div>
+
+          <div class="ad-overlay__timeleft">
+            Werbung läuft
+            <span class="ad-overlay__timeleft__value">{{ adTimeLeft }}</span>
+          </div>
+        </div>
+      </Transition>
+    </div>
+
+    <button v-if="test" style="position: fixed; bottom: 0; left: 0;" @click="startAd(90)">Test Ad</button>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useDateFormat, useNow } from '@vueuse/core';
+import { computed, onUnmounted, ref, watch } from 'vue';
+import { AdRunEvent, defineHandler, useStreamerbotClient } from '../composables/useStreamerbotClient';
+
+withDefaults(defineProps<{
+  test: boolean;
+}>(), {
+  test: false
+});
+
+const isActive = ref(false);
+const adStart = ref(0);
+const adLength = ref(0);
+const adTimeout = ref<ReturnType<typeof setTimeout>>();
+
+const { now, pause, resume } = useNow({ controls: true });
+
+watch(isActive, (value) => value ? resume() : pause(), { immediate: true });
+
+const adProgress = computed(() => {
+  if (!isActive.value || adLength.value <= 0) return 0;
+
+  return (now.value.getTime() - adStart.value) / adLength.value;
+});
+
+const adTimeLeft = useDateFormat(computed(() => adStart.value + adLength.value - now.value.getTime()), "mm:ss");
+
+function startAd(lengthSecs: number) {
+  adStart.value = Date.now();
+  adLength.value = lengthSecs * 1000;
+  
+  adTimeout.value && clearTimeout(adTimeout.value);
+  adTimeout.value = setTimeout(() => {
+    adTimeout.value = undefined;
+    isActive.value = false;
+  }, adLength.value);
+
+  isActive.value = true;
+}
+
+const { client } = useStreamerbotClient({
+  onConnect() {
+    client.value!.on("Twitch.AdRun", defineHandler(({ data }: AdRunEvent) => {
+      startAd(data.length);
+    }));
+  }
+});
+
+onUnmounted(() => {
+  adTimeout.value && clearTimeout(adTimeout.value);
+});
+</script>
+
+<style scoped>
+.ad-overlay {
+  --color-primary: #FB1D76;
+  --color-primary-rgb: 251, 29, 118;
+  --color-primary-light: #FF5E8C;
+  --color-primary-light-rgb: 255, 94, 140;
+  --color-background: #2F2F30;
+  --color-background-rgb: 47, 47, 48;
+  --color-background-light: #383649;
+  --color-background-light-rgb: 56, 54, 73;
+
+  --gradient-background: linear-gradient(
+    to right bottom,
+    rgb(var(--color-background-rgb), 90%),
+    rgb(var(--color-background-light-rgb), 90%)
+  );
+
+  margin: 20px;
+  position: relative;
+}
+
+.ad-overlay__container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+}
+
+.ad-overlay__state {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.ad-overlay__progressbar {
+  width: 100%;
+  height: 8px;
+  background: var(--gradient-background);
+  border-radius: 4px;
+}
+
+.ad-overlay__progressbar__inner {
+  height: 100%;
+  background-color: var(--color-primary);
+  box-shadow: 0 0 6px -3px rgb(var(--color-primary-rgb), 0.5);
+  border-radius: 4px;
+}
+
+.ad-overlay__timeleft {
+  display: inline-flex;
+  margin-top: 10px;
+  background: var(--gradient-background);
+  padding: .4rem 0.5rem;
+  line-height: 1;
+  border-radius: 4px;
+
+  font-weight: 300;
+  font-size: 32px;
+}
+
+.ad-overlay__timeleft__value {
+  font-weight: 500;
+  color: var(--color-primary-light);
+  margin-left: 0.5rem;
+}
+</style>
