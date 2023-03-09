@@ -10,12 +10,15 @@ const isTest = computed(() => param.test === "true");
 <template>
   <img v-if="isTest" src="@/assets/test-bg.png" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1" />
 
-  <AdOverlay class="full" v-if="param.q === 'adoverlay'" :test="isTest" />
+  <AdOverlay v-if="param.q === 'adoverlay'" :test="isTest" />
 </template>
 
-<style scoped>
-.full {
-  position: absolute;
-  inset: 0;
+<style>
+.stack {
+  display: grid;
+}
+.stack>* {
+  grid-column: 1;
+  grid-row: 1;
 }
 </style>

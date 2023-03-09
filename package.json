@@ -12,6 +12,7 @@
   "dependencies": {
     "@streamerbot/vue": "^1.0.3",
     "@vueuse/core": "^9.13.0",
+    "pinia": "^2.0.33",
     "three": "^0.134.0",
     "troisjs": "^0.3.4",
     "vue": "^3.2.45",

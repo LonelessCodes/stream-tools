@@ -1,28 +1,31 @@
 <template>
-  <div class="ad-overlay">
-    <div class="ad-overlay__container">
+  <div class="ad-overlay stack">
+    <PokemonOverlay :isActive="isActive" />
+
+    <div class="stack ad-overlay__container">
       <Transition name="fade">
-        <div v-show="isActive" class="ad-overlay__state">
+        <div v-show="isActive">
           <div class="ad-overlay__progressbar">
             <div class="ad-overlay__progressbar__inner" :style="{ width: (adProgress * 100) + '%' }"></div>
           </div>
 
           <div class="ad-overlay__timeleft">
-            Werbung läuft
+            <span class="ad-overlay__timeleft__badge">Werbung läuft</span>
             <span class="ad-overlay__timeleft__value">{{ adTimeLeft }}</span>
           </div>
         </div>
       </Transition>
     </div>
 
-    <button v-if="test" style="position: fixed; bottom: 0; left: 0;" @click="startAd(90)">Test Ad</button>
+    <button v-if="test" style="position: fixed; bottom: 0; left: 0; font-size: 32px" @click="startAd(30)">Test Ad</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useDateFormat, useNow } from '@vueuse/core';
+import { useDateFormat, useTimestamp } from '@vueuse/core';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { AdRunEvent, defineHandler, useStreamerbotClient } from '../composables/useStreamerbotClient';
+import PokemonOverlay from './PokemonOverlay.vue';
 
 withDefaults(defineProps<{
   test: boolean;
@@ -35,22 +38,22 @@ const adStart = ref(0);
 const adLength = ref(0);
 const adTimeout = ref<ReturnType<typeof setTimeout>>();
 
-const { now, pause, resume } = useNow({ controls: true });
+const { timestamp, pause, resume } = useTimestamp({ controls: true });
 
 watch(isActive, (value) => value ? resume() : pause(), { immediate: true });
 
 const adProgress = computed(() => {
   if (!isActive.value || adLength.value <= 0) return 0;
 
-  return (now.value.getTime() - adStart.value) / adLength.value;
+  return (timestamp.value - adStart.value) / adLength.value;
 });
 
-const adTimeLeft = useDateFormat(computed(() => adStart.value + adLength.value - now.value.getTime()), "mm:ss");
+const adTimeLeft = useDateFormat(computed(() => adStart.value + adLength.value - timestamp.value), "mm:ss");
 
 function startAd(lengthSecs: number) {
   adStart.value = Date.now();
   adLength.value = lengthSecs * 1000;
-  
+
   adTimeout.value && clearTimeout(adTimeout.value);
   adTimeout.value = setTimeout(() => {
     adTimeout.value = undefined;
@@ -73,7 +76,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
+<style>
 .ad-overlay {
   --color-primary: #FB1D76;
   --color-primary-rgb: 251, 29, 118;
@@ -84,26 +87,20 @@ onUnmounted(() => {
   --color-background-light: #383649;
   --color-background-light-rgb: 56, 54, 73;
 
-  --gradient-background: linear-gradient(
-    to right bottom,
-    rgb(var(--color-background-rgb), 90%),
-    rgb(var(--color-background-light-rgb), 90%)
-  );
+  --background-opacity: 90%;
 
-  margin: 20px;
+  --gradient-background: linear-gradient(to right bottom,
+      rgb(var(--color-background-rgb), var(--background-opacity)),
+      rgb(var(--color-background-light-rgb), var(--background-opacity)));
+
+  width: 100%;
+  height: 100%;
+  padding: 20px;
   position: relative;
 }
 
 .ad-overlay__container {
   position: relative;
-  width: 100%;
-  height: 100%;
-  display: grid;
-}
-
-.ad-overlay__state {
-  grid-column: 1;
-  grid-row: 1;
 }
 
 .ad-overlay__progressbar {
