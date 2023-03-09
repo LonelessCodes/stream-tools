@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs } from '@vueuse/shared';
 import { ref, watch } from 'vue';
 
 const pokemon = Object
@@ -79,7 +78,17 @@ function onStartPlay() {
 }
 
 function onEndPlay() {
+  if (!currentPokemon.value) return;
+
   isRevealed.value = true;
+
+  fetch("https://tiny-tts.loneless.art/execute/custom?key=f91edd77a418bfddff802183c5ba55525143b9d4bfdf6165c638bfb573564a8e", {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain",
+    },
+    body: currentPokemon.value.name,
+  });
 }
 
 function onEndDone() {

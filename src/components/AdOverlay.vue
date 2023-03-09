@@ -17,7 +17,7 @@
       </Transition>
     </div>
 
-    <button v-if="test" style="position: fixed; bottom: 0; left: 0; font-size: 32px" @click="startAd(30)">Test Ad</button>
+    <button v-if="test" style="position: fixed; bottom: 0; left: 0; font-size: 32px" @click="startAd(15)">Test Ad</button>
   </div>
 </template>
 
