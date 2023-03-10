@@ -17,7 +17,8 @@
       </Transition>
     </div>
 
-    <button v-if="test" style="position: fixed; bottom: 0; left: 0; font-size: 32px" @click="startAd(15)">Test Ad</button>
+    <button v-if="test" style="position: fixed; bottom: 0; left: 0; font-size: 32px" @click="startAd(5)">Test Ad</button>
+    <button v-if="test" style="position: fixed; bottom: 0; left: 200px; font-size: 32px" @click="stopAd()">Stop Ad</button>
   </div>
 </template>
 
@@ -55,12 +56,15 @@ function startAd(lengthSecs: number) {
   adLength.value = lengthSecs * 1000;
 
   adTimeout.value && clearTimeout(adTimeout.value);
-  adTimeout.value = setTimeout(() => {
-    adTimeout.value = undefined;
-    isActive.value = false;
-  }, adLength.value);
+  adTimeout.value = setTimeout(stopAd, adLength.value);
 
   isActive.value = true;
+}
+
+function stopAd() {
+  adTimeout.value && clearTimeout(adTimeout.value);
+  adTimeout.value = undefined;
+  isActive.value = false;
 }
 
 const { client } = useStreamerbotClient({
