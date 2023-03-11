@@ -57,8 +57,15 @@ const pokemon = Object
     url: value,
   }));
 
+let currentIndex = 0;
+
 function getRandomPokemon() {
-  return pokemon[Math.floor(Math.random() * pokemon.length)];
+  if (currentIndex >= pokemon.length) {
+    // reshuffle array when all pokemon have been used
+    pokemon.sort(() => 0.5 - Math.random());
+    currentIndex = 0;
+  }
+  return pokemon[currentIndex];
 }
 
 const startSound = ref<HTMLAudioElement>();
