@@ -59,6 +59,8 @@ const pokemon = Object
 
 let currentIndex = 0;
 
+pokemon.sort(() => 0.5 - Math.random());
+
 function getRandomPokemon() {
   if (currentIndex >= pokemon.length) {
     // reshuffle array when all pokemon have been used
