@@ -65,7 +65,7 @@ function getRandomPokemon() {
     pokemon.sort(() => 0.5 - Math.random());
     currentIndex = 0;
   }
-  return pokemon[currentIndex];
+  return pokemon[currentIndex++];
 }
 
 const startSound = ref<HTMLAudioElement>();
