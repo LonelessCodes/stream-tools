@@ -75,6 +75,7 @@ const endSound = ref<HTMLAudioElement>();
 
 const $props = defineProps<{
   isActive: boolean;
+  ttsSecret?: string;
 }>();
 
 const isVisible = ref(false);
@@ -91,13 +92,15 @@ function onEndPlay() {
 
   isRevealed.value = true;
 
-  fetch("https://tiny-tts.loneless.art/execute/custom?key=f91edd77a418bfddff802183c5ba55525143b9d4bfdf6165c638bfb573564a8e", {
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain",
-    },
-    body: currentPokemon.value.name,
-  });
+  if ($props.ttsSecret) {
+    fetch(`https://tiny-tts.loneless.art/execute/custom?key=${$props.ttsSecret}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain",
+      },
+      body: currentPokemon.value.name,
+    });
+  }
 }
 
 function onEndDone() {

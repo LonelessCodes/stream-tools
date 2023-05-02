@@ -1,6 +1,6 @@
 <template>
   <div class="ad-overlay stack">
-    <PokemonOverlay :isActive="isActive" />
+    <PokemonOverlay :isActive="isActive" :tts-secret="ttsSecret" />
 
     <div class="stack ad-overlay__container">
       <Transition name="fade">
@@ -29,7 +29,8 @@ import { AdRunEvent, defineHandler, useStreamerbotClient } from '../composables/
 import PokemonOverlay from './PokemonOverlay.vue';
 
 withDefaults(defineProps<{
-  test: boolean;
+  test?: boolean;
+  ttsSecret?: string;
 }>(), {
   test: false
 });

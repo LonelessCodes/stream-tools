@@ -10,7 +10,7 @@ const isTest = computed(() => param.test === "true");
 <template>
   <img v-if="isTest" src="@/assets/test-bg.png" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1" />
 
-  <AdOverlay v-if="param.q === 'adoverlay'" :test="isTest" />
+  <AdOverlay v-if="param.q === 'adoverlay'" :test="isTest" :tts-secret="!Array.isArray(param.ttssecret) ? param.ttssecret : undefined" />
 </template>
 
 <style>
